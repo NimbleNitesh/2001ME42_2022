@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
+
+
 def octact_identification(mod=5000):
 ###Code
-    df=pd.read_csv(r"octant_input.csv")
+    df=pd.read_csv(r"octant_input.csv")#reading csv file
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)
     V_Avg=df['V'].mean()
@@ -28,6 +30,7 @@ def octact_identification(mod=5000):
     df.insert(len(df.columns), column="W'=W - W avg", value="")
     df["W'=W - W avg"]=df['W']-W_Avg
     df["Time"] = df["Time"].apply(lambda x: format(float(x),".2f"))
+    #using lamda function
     df["U"] = df["U"].apply(lambda x: format(float(x),".2f"))
     df["V"] = df["V"].apply(lambda x: format(float(x),".2f"))
     df["W"] = df["W"].apply(lambda x: format(float(x),".2f"))
@@ -76,6 +79,7 @@ def octact_identification(mod=5000):
     df.insert(len(df.columns), column=" ", value="")
     df[" "][1]="User Input"
     df.head()
+    #adding new column
     df.insert(len(df.columns), column="Octant ID", value="")
     df.insert(len(df.columns), column="1", value="")
     df.insert(len(df.columns), column="-1", value="")
@@ -145,7 +149,7 @@ def octact_identification(mod=5000):
 
             
     #print(df.head(5))
-    df.to_csv(r"octant_output.csv", encoding='utf-8', index=False)
+    df.to_csv(r"octant_output.csv", encoding='utf-8', index=False)#storing final csv file to octant_output.csv
 
 from platform import python_version
 ver = python_version()
