@@ -6,7 +6,7 @@ def octact_identification(mod=5000):
 ###Code
     df=pd.read_csv(r"octant_input.csv")#reading csv file
     U_Avg=df['U'].mean()
-    U_Avg=round(U_Avg, 8)
+    U_Avg=round(U_Avg, 8)#setting precision to 8
     V_Avg=df['V'].mean()
     V_Avg=round(V_Avg, 9)
     W_Avg=df['W'].mean()
@@ -145,20 +145,16 @@ def octact_identification(mod=5000):
             df.at[cur_pos, '-3']=cnt_minus_three
             df.at[cur_pos, '4']=cnt_four
             df.at[cur_pos, '-4']=cnt_minus_four 
-        cur_pos+=1
-
-            
+        cur_pos+=1            
     #print(df.head(5))
     df.to_csv(r"octant_output.csv", encoding='utf-8', index=False)#storing final csv file to octant_output.csv
 
 from platform import python_version
 ver = python_version()
-
 if ver == "3.8.10":
     print("Correct Version Installed")
 else:
     print("Please install 3.8.10. Instruction are present in the GitHub Repo/Webmail. Url: https://pastebin.com/nvibxmjw")
-
 
 mod=5000
 octact_identification(mod)
