@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 def octact_identification(mod=5000):
 ###Code
-    df=pd.read_csv(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut01\octant_input.csv")
+    df=pd.read_csv(r"octant_input.csv")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)
     V_Avg=df['V'].mean()
@@ -94,6 +94,7 @@ def octact_identification(mod=5000):
     df.at[0, '-3']=cnt_minus_three
     df.at[0, '4']=cnt_four
     df.at[0, '-4']=cnt_minus_four
+    #CHANGE THE MOD VALUES FROM HERE
     x=mod
     txt="Mod {}"
     txt=txt.format(x)
@@ -144,7 +145,7 @@ def octact_identification(mod=5000):
 
             
     #print(df.head(5))
-    df.to_csv(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut01\octant_output.csv", encoding='utf-8', index=False)
+    df.to_csv(r"octant_output.csv", encoding='utf-8', index=False)
 
 
 
