@@ -2,6 +2,7 @@ import pandas as pd
 
 def octant_transition_count(mod=5000):
 ###Code
+    #importing xlsx file to create a dataframe
     df=pd.read_excel(r"input_octant_transition_identify.xlsx")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)#setting precision to 8
@@ -188,9 +189,11 @@ def octant_transition_count(mod=5000):
     n+=1
     df.at[n, ' ']="From"
     thislist=['+1', '-1', '+2', '-2', '+3', '-3', '+4', '-4']
+    #nested loop to initialise the table element
     for i in range(len(thislist)):
         for j in range(len(thislist)):
             df.at[n+i, thislist[j]]=0
+    #computing the Transition counts
     for i in range(row_cnt):
         if i+1==row_cnt:
             break
@@ -210,11 +213,11 @@ def octant_transition_count(mod=5000):
             df.at[n+6, df['Octant'][i+1]]+=1
         elif df.at[i, 'Octant']=='-4':
             df.at[n+7, df['Octant'][i+1]]+=1
-
     n+=8
     ch=True
     while ch:
         l_size=len(l)
+        #nested loop to compute modular transition counts
         for i in range(l_size):
             n+=2
             df.at[n, 'Octant ID']="Mod Transition Count"
@@ -229,7 +232,6 @@ def octant_transition_count(mod=5000):
             df.at[n, 'Octant ID']=txt
             df.at[n, '+1']="To"
             n+=1
-            #ek aur row hai
             df.at[n, 'Octant ID']="Count"
             df.at[n+1, ' ']="From"
             for iii in range(len(thislist)):
@@ -265,7 +267,8 @@ def octant_transition_count(mod=5000):
                     df.at[n+6, df['Octant'][j+1]]+=1
                 elif df.at[j, 'Octant']=='-4':
                     df.at[n+7, df['Octant'][j+1]]+=1
-            n+=8        
+            n+=8
+    #Exporting to xlsx file
     df.to_excel(r"output_octant_transition_identify.xlsx", encoding='utf-8', index=False)#storing final csv file to octant_output
 
 
