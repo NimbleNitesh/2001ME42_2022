@@ -2,7 +2,7 @@ import pandas as pd
 
 def octant_transition_count(mod=5000):
 ###Code
-    df=pd.read_excel(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut02\input_octant_transition_identify.xlsx")
+    df=pd.read_excel(r"input_octant_transition_identify.xlsx")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)#setting precision to 8
     V_Avg=df['V'].mean()
@@ -266,7 +266,7 @@ def octant_transition_count(mod=5000):
                 elif df.at[j, 'Octant']=='-4':
                     df.at[n+7, df['Octant'][j+1]]+=1
             n+=8        
-    df.to_excel(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut02\output_octant_transition_identify.xlsx", encoding='utf-8', index=False)#storing final csv file to octant_output
+    df.to_excel(r"output_octant_transition_identify.xlsx", encoding='utf-8', index=False)#storing final csv file to octant_output
 
 
 
