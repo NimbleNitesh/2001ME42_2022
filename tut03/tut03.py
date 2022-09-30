@@ -5,6 +5,7 @@ start_time = datetime.now()
 
 #Help https://youtu.be/H37f_x4wAC0
 def octant_longest_subsequence_count():
+    #reading excel file
     df=pd.read_excel(r"input_octant_longest_subsequence.xlsx")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)#setting precision to 8
@@ -15,6 +16,7 @@ def octant_longest_subsequence_count():
     U_Avg=str(U_Avg)
     V_Avg=str(V_Avg)
     W_Avg=str(W_Avg)
+    #inserting new column
     df.insert(len(df.columns), column="U Avg", value="")
     df.insert(len(df.columns), column="V Avg", value="")
     df.insert(len(df.columns), column="W Avg", value="")
@@ -71,6 +73,7 @@ def octant_longest_subsequence_count():
     #df.head()
     O_list=df['Octant'].tolist()
     n=len(O_list)
+    #creating a dictionary to store the maximum length and its frequency for each Octant ID
     thisdict={
         '+1':[0, 0],
         '-1':[0, 0],
@@ -113,10 +116,11 @@ def octant_longest_subsequence_count():
         df['Longest Subsquence Length'][j]=thisdict[i][0]
         df['Count'][j]=thisdict[i][1]
         j+=1
-    df.head(10)
+    #df.head(10)
     df.to_excel(r"output_octant_longest_subsequence.xlsx", encoding='utf-8', index=False)#storing final excel file to octant_output
     ###Code
 
+#Checkin Python Version
 from platform import python_version
 ver = python_version()
 
