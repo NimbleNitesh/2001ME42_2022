@@ -5,14 +5,15 @@ start_time = datetime.now()
 
 #Help https://youtu.be/H37f_x4wAC0
 def octant_longest_subsequence_count():
-    #reading excel file
+#reading excel file
     try:
         df=pd.read_excel(r"input_octant_longest_subsequence.xlsx")
     except:
         print("ERROR in reading file\n")
         exit()
     U_Avg=df['U'].mean()
-    U_Avg=round(U_Avg, 8)#setting precision to 8
+#setting precision to 8
+    U_Avg=round(U_Avg, 8)
     V_Avg=df['V'].mean()
     V_Avg=round(V_Avg, 9)
     W_Avg=df['W'].mean()
@@ -21,7 +22,7 @@ def octant_longest_subsequence_count():
     V_Avg=str(V_Avg)
     W_Avg=str(W_Avg)
     try:
-    #inserting new column
+#inserting new column
         df.insert(len(df.columns), column="U Avg", value="")
         df.insert(len(df.columns), column="V Avg", value="")
         df.insert(len(df.columns), column="W Avg", value="")
@@ -41,7 +42,7 @@ def octant_longest_subsequence_count():
         print("ERROR in creating new column\n")
         exit()
     df["Time"] = df["Time"].apply(lambda x: format(float(x),".2f"))
-    #using lamda function
+#using lamda function
     df["U"] = df["U"].apply(lambda x: format(float(x),".2f"))
     df["V"] = df["V"].apply(lambda x: format(float(x),".2f"))
     df["W"] = df["W"].apply(lambda x: format(float(x),".2f"))
@@ -84,7 +85,7 @@ def octant_longest_subsequence_count():
     try:
         O_list=df['Octant'].tolist()
         n=len(O_list)
-        #creating a dictionary to store the maximum length and its frequency for each Octant ID
+#creating a dictionary to store the maximum length and its frequency for each Octant ID
         thisdict={
             '+1':[0, 0],
             '-1':[0, 0],
@@ -96,6 +97,10 @@ def octant_longest_subsequence_count():
             '-4':[0, 0]
         }
         i=0
+#Iterating through the Octant list and storing the current length of continous segment
+#If this length is greater than max length then updating maxlength and setting its
+#frequency to 1 else if this length is equal to max lemgth the incrementing the max
+#length frequency
         while i<n:
             cur_val=O_list[i]
             cur_freq=1
@@ -115,6 +120,7 @@ def octant_longest_subsequence_count():
         df.insert(len(df.columns), column="Octant ID", value="")
         df.insert(len(df.columns), column="Longest Subsquence Length", value="")
         df.insert(len(df.columns), column="Count", value="")
+#storing dicionary thisdict in dataframe df
         j=0
         for i in thisdict:
             df['Octant ID'][j]=i;
@@ -128,7 +134,7 @@ def octant_longest_subsequence_count():
         df.to_excel(r"output_octant_longest_subsequence.xlsx", encoding='utf-8', index=False)#storing final excel file to octant_output
     except:
         print("ERROR in exporting Excel file\n")
-    ###Code
+#Code
 
 #Checkin Python Version
 from platform import python_version
