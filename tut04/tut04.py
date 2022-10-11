@@ -1,7 +1,7 @@
 import pandas as pd
 #Help https://youtu.be/H37f_x4wAC0
 def octant_longest_subsequence_count_with_range():
-    df=pd.read_excel(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut04\input_octant_longest_subsequence_with_range.xlsx")
+    df=pd.read_excel(r"input_octant_longest_subsequence_with_range.xlsx")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)#setting precision to 8
     V_Avg=df['V'].mean()
@@ -143,7 +143,7 @@ def octant_longest_subsequence_count_with_range():
             cur_row+=1
     #df.head(10)
 
-    df.to_excel(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut04\output_octant_longest_subsequence_with_range.xlsx", encoding='utf-8', index=False)#storing final excel file to octant_output
+    df.to_excel(r"output_octant_longest_subsequence_with_range.xlsx", encoding='utf-8', index=False)#storing final excel file to octant_output
     ###Code
 
 from platform import python_version
