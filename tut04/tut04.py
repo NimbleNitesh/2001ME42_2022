@@ -2,6 +2,7 @@ import pandas as pd
 #Help https://youtu.be/H37f_x4wAC0
 def octant_longest_subsequence_count_with_range():
     try:
+        #Importing the excel file to a dataframe
         df=pd.read_excel(r"input_octant_longest_subsequence_with_range.xlsx")
     except:
         print('Error in reading Excel file')
@@ -39,7 +40,7 @@ def octant_longest_subsequence_count_with_range():
     df.insert(len(df.columns), column="W'=W - W avg", value="")
     df["W'=W - W avg"]=df['W']-W_Avg
     df["Time"] = df["Time"].apply(lambda x: format(float(x),".2f"))
-    #using lamda function
+    #using lamda function to set precision of the float values
     df["U"] = df["U"].apply(lambda x: format(float(x),".2f"))
     df["V"] = df["V"].apply(lambda x: format(float(x),".2f"))
     df["W"] = df["W"].apply(lambda x: format(float(x),".2f"))
@@ -88,6 +89,9 @@ def octant_longest_subsequence_count_with_range():
     try:
         O_list=df['Octant'].tolist()
         n=len(O_list)
+        #creating a dictionary having key each octant ID and value list of size 2
+            #having first value as Longest Subsequence Length and second value as 
+                #frequency of Longest Subsequence Length
         thisdict={
             '+1':[0, 0],
             '-1':[0, 0],
@@ -98,7 +102,8 @@ def octant_longest_subsequence_count_with_range():
             '+4':[0, 0],
             '-4':[0, 0]
         }
-
+        #creating a dictionary having key each octant ID and value a list storing 
+            #all the starting indices of Longest Subsequence Length
         newdict={
             '+1':[],
             '-1':[],
@@ -137,33 +142,33 @@ def octant_longest_subsequence_count_with_range():
     # print(newdict)
     # print(len(df.columns))
     df.insert(len(df.columns), column=" ", value="")
-    print(len(df.columns))
+    #print(len(df.columns))
     df.insert(len(df.columns), column="Octant ID", value="")
-    df.insert(len(df.columns), column="Longest Subsquence Length", value="")
+    df.insert(len(df.columns), column="Longest Subsequence Length", value="")
     df.insert(len(df.columns), column="Count", value="")
     try:
         j=0
         for i in thisdict:
             df['Octant ID'][j]=i
-            df['Longest Subsquence Length'][j]=thisdict[i][0]
+            df['Longest Subsequence Length'][j]=thisdict[i][0]
             df['Count'][j]=thisdict[i][1]
             j+=1
         df.insert(len(df.columns), column="  ", value="")
         df.insert(len(df.columns), column="Count_2", value="")
-        df.insert(len(df.columns), column="Longest Subsquence Length_2", value="")
+        df.insert(len(df.columns), column="Longest Subsequence Length_2", value="")
         df.insert(len(df.columns), column="Count_3", value="")
         cur_row=0
         for i in newdict:
             df['Count_2'][cur_row]=i
-            df['Longest Subsquence Length_2'][cur_row]=thisdict[i][0]
+            df['Longest Subsequence Length_2'][cur_row]=thisdict[i][0]
             df['Count_3'][cur_row]=thisdict[i][1]
             cur_row+=1
             df['Count_2'][cur_row]='Time'
-            df['Longest Subsquence Length_2'][cur_row]='From'
+            df['Longest Subsequence Length_2'][cur_row]='From'
             df['Count_3'][cur_row]='To'
             cur_row+=1
             for j in newdict[i]:
-                df['Longest Subsquence Length_2'][cur_row]=df['Time'][j]
+                df['Longest Subsequence Length_2'][cur_row]=df['Time'][j]
                 df['Count_3'][cur_row]=df['Time'][j+thisdict[i][0]-1]
                 cur_row+=1
     except:
