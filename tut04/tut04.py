@@ -47,7 +47,6 @@ def octant_longest_subsequence_count_with_range():
     df["U'=U - U avg"] = df["U'=U - U avg"].apply(lambda x: format(float(x),".9f"))
     df["V'=V - V avg"] = df["V'=V - V avg"].apply(lambda x: format(float(x),".9f"))
     df["W'=W - W avg"] = df["W'=W - W avg"].apply(lambda x: format(float(x),".9f"))
-    #df.head()
     try:
         U_list=df["U'=U - U avg"].tolist()
         V_list=df["V'=V - V avg"].tolist()
@@ -124,9 +123,6 @@ def octant_longest_subsequence_count_with_range():
                     break
                 cur_freq+=1
                 j+=1
-        #     txt="cur_val={} and cur_freq={}"
-        #     txt=txt.format(cur_val, cur_freq)
-        #     print(txt)
             if thisdict[cur_val][0]==cur_freq:
                 thisdict[cur_val][1]+=1
                 newdict[cur_val].append(i)
@@ -139,10 +135,7 @@ def octant_longest_subsequence_count_with_range():
     except:
         print('ERROR in finding Longest Subsequence Count for every Octant along with range')
         exit()
-    # print(newdict)
-    # print(len(df.columns))
     df.insert(len(df.columns), column=" ", value="")
-    #print(len(df.columns))
     df.insert(len(df.columns), column="Octant ID", value="")
     df.insert(len(df.columns), column="Longest Subsequence Length", value="")
     df.insert(len(df.columns), column="Count", value="")
@@ -174,7 +167,6 @@ def octant_longest_subsequence_count_with_range():
     except:
         print('Error in adding the calculated values to the dataframe')
         exit()
-    #df.head(10)
     try:
         df.to_excel(r"output_octant_longest_subsequence_with_range.xlsx", encoding='utf-8', index=False)#storing final excel file to octant_output
     except:
