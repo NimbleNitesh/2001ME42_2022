@@ -89,7 +89,7 @@ def octant_transition_count(mod=5000):
         exit()
     df.insert(len(df.columns), column=" ", value="")
     df[" "][1]="User Input"
-    df.head()
+    #df.head()
     #adding new column
     df.insert(len(df.columns), column="Octant ID", value="")
     df.insert(len(df.columns), column="+1", value="")
