@@ -36,7 +36,7 @@ def customsort(l2):
 #Help https://youtu.be/N6PBd4XdnEw
 def octant_range_names(mod=5000):
     #reading excel file
-    df=pd.read_excel(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut05\octant_input.xlsx")
+    df=pd.read_excel(r"octant_input.xlsx")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)#setting precision to 8
     V_Avg=df['V'].mean()
@@ -244,7 +244,7 @@ def octant_range_names(mod=5000):
         df.at[cur_pos, '+2']=countdict[i]
         cur_pos+=1
     #Exporting Data
-    df.to_excel(r'C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut05\octant_output_ranking_excel.xlsx', encoding='utf-8', index=False)
+    df.to_excel(r'octant_output_ranking_excel.xlsx', encoding='utf-8', index=False)
     #print(countdict)
     
     #octant_name_id_mapping = {"1":"Internal outward interaction", "-1":"External outward interaction", "2":"External Ejection", "-2":"Internal Ejection", "3":"External inward interaction", "-3":"Internal inward interaction", "4":"Internal sweep", "-4":"External sweep"}
