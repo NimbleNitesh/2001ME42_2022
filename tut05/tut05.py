@@ -1,9 +1,9 @@
 import pandas as pd
-
 from datetime import datetime
 start_time = datetime.now()
 
-
+#Customized sort function to find the ranl of various Octant IDs based on their frequency
+#If two Octant IDs have same frequency then their rank would also be same
 def customsort(l2):
     l1=['Rank of +1', 'Rank of -1', 'Rank of +2', 'Rank of -2', 'Rank of +3', 'Rank of -3', 'Rank of +4', 'Rank of -4']
     #cnt_one=cnt_minus_one=cnt_two=cnt_minus_two=cnt_three=cnt_minus_three=cnt_four=cnt_minus_four=0
@@ -35,6 +35,7 @@ def customsort(l2):
 
 #Help https://youtu.be/N6PBd4XdnEw
 def octant_range_names(mod=5000):
+    #reading excel file
     df=pd.read_excel(r"C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut05\octant_input.xlsx")
     U_Avg=df['U'].mean()
     U_Avg=round(U_Avg, 8)#setting precision to 8
@@ -68,13 +69,14 @@ def octant_range_names(mod=5000):
     df["U'=U - U avg"] = df["U'=U - U avg"].apply(lambda x: format(float(x),".9f"))
     df["V'=V - V avg"] = df["V'=V - V avg"].apply(lambda x: format(float(x),".9f"))
     df["W'=W - W avg"] = df["W'=W - W avg"].apply(lambda x: format(float(x),".9f"))
-    #df.head()
     U_list=df["U'=U - U avg"].tolist()
     V_list=df["V'=V - V avg"].tolist()
     W_list=df["W'=W - W avg"].tolist()
     df.insert(len(df.columns), column="Octant", value="")
     n=len(U_list)
     cnt_one=cnt_minus_one=cnt_two=cnt_minus_two=cnt_three=cnt_minus_three=cnt_four=cnt_minus_four=0
+    #Finding the Octant ID based on U, V and W values
+    #Also maintaing count of all the Octants
     for i in range(n):
         U_list_i=float(U_list[i])
         V_list_i=float(V_list[i])
@@ -107,6 +109,7 @@ def octant_range_names(mod=5000):
             else:
                 df['Octant'][i]="-4"
                 cnt_minus_four+=1
+    #Inserting New columns
     df.insert(len(df.columns), column=" ", value="")
     df[' '][1]="User Input"
     df.insert(len(df.columns), column="Octant ID", value="")
@@ -128,6 +131,7 @@ def octant_range_names(mod=5000):
     df.insert(len(df.columns), column="Rank of -4", value="")
     df.insert(len(df.columns), column="Rank 1 Octant ID", value="")
     df.insert(len(df.columns), column='Octant Name', value="")
+    #Dictionary to store the name of Octant IDs
     OctantName={
         '+1':'Internal outward interaction',
         '-1':'External outward interaction',
@@ -151,6 +155,8 @@ def octant_range_names(mod=5000):
     rank1=''
     thisdict=customsort(l2)
     #print(thisdict)
+    #Finding the Octant with rank 1
+    #if many such Octant are their then storing any one of them
     for i in thisdict:
         df.at[0, i]=thisdict[i]
         if thisdict[i]==1 and rank1=='':
@@ -169,6 +175,7 @@ def octant_range_names(mod=5000):
         cur+=x
     n=len(l)
     cur_pos=2
+    #A dictionary to store the frequency of getting Rank 1
     countdict={
         '+1':0,
         '-1':0,
@@ -236,7 +243,7 @@ def octant_range_names(mod=5000):
         df.at[cur_pos, '-1']=OctantName[i]
         df.at[cur_pos, '+2']=countdict[i]
         cur_pos+=1
-    #
+    #Exporting Data
     df.to_excel(r'C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut05\octant_output_ranking_excel.xlsx', encoding='utf-8', index=False)
     #print(countdict)
     
