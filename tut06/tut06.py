@@ -27,7 +27,7 @@ def isValidTime(x):
 
 def attendance_report():     
     #main
-    df=pd.read_csv(r'C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut06\input_registered_students.csv')
+    df=pd.read_csv(r'input_registered_students.csv')
     roll_list=df['Roll No'].tolist()
     name_list=df['Name'].tolist()
     valid_dates=[]
@@ -52,7 +52,7 @@ def attendance_report():
         for j in range(len(valid_dates)):
             full[roll_list[i]][valid_dates[j]]=[0, 0, 0]
     # print(full)        
-    df1=pd.read_csv(r'C:\Users\Dell Vostro 3491\OneDrive\Documents\GitHub\2001ME42_2022\tut06\input_attendance.csv')
+    df1=pd.read_csv(r'input_attendance.csv')
     df1['Timestamp'] = pd.to_datetime(df1['Timestamp'], format='%d-%m-%Y %H:%M')
     df1['Dates'] = pd.to_datetime(df1['Timestamp']).dt.date
     df1['Time'] = pd.to_datetime(df1['Timestamp']).dt.time
@@ -108,7 +108,7 @@ def attendance_report():
         df_final.at[cur, '% Attendance']=percent
         cur+=1
     # print(df_final.head(10))
-    df_final.to_excel('C:/Users/Dell Vostro 3491/OneDrive/Documents/GitHub/2001ME42_2022/tut06/output/attendance_report_consolidated.xlsx', encoding='utf-8', index=False)
+    df_final.to_excel('output/attendance_report_consolidated.xlsx', encoding='utf-8', index=False)
 
     n=len(roll_list)
     for i in range(n):
