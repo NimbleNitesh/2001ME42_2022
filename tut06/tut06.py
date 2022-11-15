@@ -1,5 +1,7 @@
 import pandas as pd
 import datetime
+from Send_Mail import main_mail
+
 start_time = datetime.datetime.now()
 
 
@@ -132,6 +134,7 @@ def attendance_report():
         df_cur.to_excel((Path+File), encoding='utf-8', index=False)
     ###Code
 
+
 from platform import python_version
 ver = python_version()
 if ver == "3.8.10":
@@ -140,7 +143,12 @@ else:
     print("Please install 3.8.10. Instruction are present in the GitHub Repo/Webmail. Url: https://pastebin.com/nvibxmjw")
 
 
+
 attendance_report()
+#Add to receiver mail address in string to. For example, to='nitesh620137@gamil.com'
+to=''
+main_mail(to)
+
 
 
 #This shall be the last lines of the code.
