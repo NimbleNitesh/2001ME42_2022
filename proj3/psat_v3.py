@@ -2,39 +2,20 @@
 import os
 import ntpath
 import glob
+import sys
 import pandas as pd
 import numpy as np
 import datetime
 from pathlib import Path 
 from datetime import datetime 
 
-start_time = datetime.now() 
-print(start_time.strftime("%c"))
-
-fileList = open('input_file_list.txt', 'r')
-files = fileList.readlines()
-for file in files:
-    input_filename = file.strip()
-    
-    base = (Path(input_filename).stem.strip())
-    output_csv = base+".csv"
-    
-    header_list = ['Time','SL' ,'counter' ,'U','V','W','W1','AMP-U' ,'AMP-V' ,'AMP-W' ,'AMP-W1' ,'SNR_U','SNR_V','SNR_W','SNR-W1' ,'Corr_U','Corr_V','Corr_W','Corr-W1']
-    dataframe = pd.read_csv(input_filename,delimiter=" +")
-    dataframe.to_csv(output_csv, encoding='utf-8', header=header_list, index=False)
 
 index=0
-# corr= 70
-# SNR= 15 
-# Lambda=1.5
-# k=1.5
+corr= 70
+SNR= 15 
+Lambda=1.5
+k=1.5
 g=9.81
-# N=input_data['U'].count()
-
-
-with open(r"Results_v2.csv",mode='a') as file_:
-    file_.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(start_time.strftime("%c"),"average_velocity_U","average_velocity_V","average_velocity_W","U_variance_Prime","V_variance_Prime","W_variance_Prime","U_stdev_Prime","V_stdev_Prime","W_stdev_Prime","Skewness_U_Prime","Skewness_V_Prime","Skewness_W_Prime","Kurtosis_U_Prime","Kurtosis_V_Prime","Kurtosis_W_Prime","Reynolds_stress_u\'v\'","Reynolds_stress_u\'w\'","Reynolds_stress_v\'w\'","Anisotropy","M30","M03","M12","M21","fku_2d","Fku_2d","fkw_2d","Fkw_2d","fku_3d","Fku_3d","fkw_3d","Fkw_3d","TKE_3d","Q1_K_Value","Q2_K_Value","Q3_K_Value","Q4_K_Value","e","ED","Octant_plus_1","Octant_minus_1","Octant_plus_2","Octant_minus_2","Octant_plus_3","Octant_minus_3","Octant_plus_4","Octant_minus_4","Total_Octant_sample","Probability_Octant_plus_1","Probability_Octant_minus_1","Probability_Octant_plus_2","Probability_Octant_minus_2","Probability_Octant_plus_3","Probability_Octant_minus_3","Probability_Octant_plus_4","Probability_Octant_minus_4","Min_Octant_Count","Min_Octant_Count_id","Max_Octant_Count","Max_Octant_Count_id","\n"))
-
 
 def write_timestamp_to_file(name): 
     # creating the csv writer 
@@ -51,7 +32,7 @@ def duration_timestamp_to_file(name, duration):
     file1.close()
 
 
-def useful_values_u():
+def useful_values_u(N,data):
     data['Var_u\'']=data['std_u\'']=data['Skewness_u\'']=data['Kurtosis_u\'']=''
 
     data['u\'u\'']=round(data['u\'']**2,3)
@@ -62,7 +43,7 @@ def useful_values_u():
     data.at[0,'Kurtosis_u\'']=round(data['u\''].kurt(),3)#kurtosis
     data['u^']=round(data['u\'']/u_std,3)
 
-def useful_values_v():
+def useful_values_v(N,data):
     data['Var_v\'']=data['std_v\'']=data['Skewness_v\'']=data['Kurtosis_v\'']=''
 
     data['v\'v\'']=round(data['v\'']**2,3)
@@ -73,7 +54,7 @@ def useful_values_v():
     data.at[0,'Kurtosis_v\'']=round(data['v\''].kurt(),3)#kurtosis
     data['v^']=round(data['v\'']/u_std,3)
 
-def useful_values_w():
+def useful_values_w(N,data):
     data['Var_w\'']=data['std_w\'']=data['Skewness_w\'']=data['Kurtosis_w\'']=''
 
     data['w\'w\'']=round(data['w\'']**2,3)
@@ -84,7 +65,7 @@ def useful_values_w():
     data.at[0,'Kurtosis_w\'']=round(data['w\''].kurt(),3)#kurtosis
     data['w^']=round(data['w\'']/w_std,3)
 
-def useful_values():
+def useful_values(N,data):
     data['U_mean']=data['V_mean']=data['W_mean']=''
     U_mean=round(data['U'].mean(),3)
     V_mean=round(data['V'].mean(),3)
@@ -99,9 +80,9 @@ def useful_values():
     data['w\'']=round(data['W']-W_mean,3)
     N=data['U'].count()
     
-    useful_values_u()
-    useful_values_v()
-    useful_values_w()
+    useful_values_u(N,data)
+    useful_values_v(N,data)
+    useful_values_w(N,data)
         
     data['Reynolds_stress_u\'v\'']=data['Reynolds_stress_u\'w\'']=data['Reynolds_stress_v\'w\'']=''
     
@@ -127,7 +108,7 @@ def useful_values():
     data.at[0,'M30']=round(data['u^u^u^'].mean(),3)
     data.at[0,'M03']=round(data['w^w^w^'].mean(),3)
 
-def fk():
+def fk(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity):
     data['fku_2d']=data['Fku_2d']=data['fkw_2d']=data['Fkw_2d']=''
     data['u\'u\'u\'']=round(data['u\'']**3,3)
     data['u\'u\'u\' mean']=''
@@ -153,9 +134,9 @@ def fk():
     data['w\'v\'v\' mean']=''
     data.at[0,'w\'v\'v\' mean']=round(data['w\'v\'v\''].mean(),3)
 
-    constant_fk2d=0.75 
-    multiplying_factor_3d=0.5 
-    Shear_velocity=2.6**3
+    constant_fk2d=pp_constant_fk2d 
+    multiplying_factor_3d=pp_multiplying_factor_3d
+    Shear_velocity=pp_Shear_velocity**3
 
     data.at[index,'fku_2d']=round((data.at[0,'u\'u\'u\' mean']+data.at[0,'u\'w\'w\' mean'])*constant_fk2d,3)
     data.at[index,'Fku_2d']=round(data.at[index,'fku_2d']/Shear_velocity,3)
@@ -173,7 +154,7 @@ def fk():
 
     data.at[index,'TKE_3D']=round((data.at[0,'Var_v\'']*data.at[0,'Var_u\'']*data.at[0,'Var_w\''])* multiplying_factor_3d,3)
 
-def Q_K_Value():
+def Q_K_Value(N,data):
     data['Q1_K_Value']=data['Q2_K_Value']=data['Q3_K_Value']=data['Q4_K_Value']=''
     u_std=round(data['u\''].std(),3)
     w_std=round(data['w\''].std(),3)
@@ -222,7 +203,7 @@ def Q_K_Value():
             data.at[index,'Q4_K_Value']=X-i
             break
 
-def octant_ID():
+def octant_ID(N,data):
     data['Octant_id']=0
     for i in range(N):
         if data.at[i,'u\'']>=0 and data.at[i,'v\'']>=0:
@@ -249,7 +230,7 @@ def octant_ID():
             if data.at[i,'w\'']<0:
                 data.at[i,'Octant_id']=-4
 
-def octant_column():
+def octant_column(N,data):
     data['Octant_plus_1']=data['Octant_minus_1']=''
     data['Octant_plus_2']=data['Octant_minus_2']=''
     data['Octant_plus_3']=data['Octant_minus_3']=''
@@ -267,7 +248,7 @@ def octant_column():
     data.at[index,'Min_Octant_Count']=data.at[index,'Min_Octant_Count_id']=N
     data.at[index,'Max_Octant_Count']=data.at[index,'Max_Octant_Count_id']=0
 
-def max_min_update(i,j):
+def max_min_update(i,j,N,data):
     if(data.at[index,'Min_Octant_Count']>i):
         data.at[index,'Min_Octant_Count']=i
         data.at[index,'Min_Octant_Count_id']=j
@@ -275,9 +256,9 @@ def max_min_update(i,j):
         data.at[index,'Max_Octant_Count']=i
         data.at[index,'Max_Octant_Count_id']=j
 
-def octant():
-    octant_ID()
-    octant_column()
+def octant(N,data):
+    octant_ID(N,data)
+    octant_column(N,data)
     
     # add all octant value with 4 to make it positive to store data in array
     # {-4,0},{-3,1},{-2,2},{-1,3},{NaN,4},{1,5},{2,6},{3,7},{4,8}
@@ -290,150 +271,150 @@ def octant():
     #for id 1
     data.at[index,'Octant_plus_1']=octant_values_frequency[1+4]
     data.at[index,'Probability_Octant_plus_1']=round(octant_values_frequency[1+4]/N,3)
-    max_min_update(octant_values_frequency[1+4],1)
+    max_min_update(octant_values_frequency[1+4],1,N,data)
 
     #for id -1
     data.at[index,'Octant_minus_1']=octant_values_frequency[-1+4]
     data.at[index,'Probability_Octant_minus_1']=round(octant_values_frequency[-1+4]/N,3)
-    max_min_update(octant_values_frequency[-1+4],-1)
+    max_min_update(octant_values_frequency[-1+4],-1,N,data)
 
     #for id 2
     data.at[index,'Octant_plus_2']=octant_values_frequency[2+4]
     data.at[index,'Probability_Octant_plus_2']=round(octant_values_frequency[2+4]/N,3)
-    max_min_update(octant_values_frequency[2+4],2)
+    max_min_update(octant_values_frequency[2+4],2,N,data)
 
     #for id -2
     data.at[index,'Octant_minus_2']=octant_values_frequency[-2+4]
     data.at[index,'Probability_Octant_minus_2']=round(octant_values_frequency[-2+4]/N,3)
-    max_min_update(octant_values_frequency[-2+4],-2)
+    max_min_update(octant_values_frequency[-2+4],-2,N,data)
 
     #for id 3
     data.at[index,'Octant_plus_3']=octant_values_frequency[3+4]
     data.at[index,'Probability_Octant_plus_3']=round(octant_values_frequency[3+4]/N,3)
-    max_min_update(octant_values_frequency[3+4],3)
+    max_min_update(octant_values_frequency[3+4],3,N,data)
 
     #for id -3
     data.at[index,'Octant_minus_3']=octant_values_frequency[-3+4]
     data.at[index,'Probability_Octant_minus_3']=round(octant_values_frequency[-3+4]/N,3)
-    max_min_update(octant_values_frequency[-3+4],-3)
+    max_min_update(octant_values_frequency[-3+4],-3,N,data)
 
     #for id 4
     data.at[index,'Octant_plus_4']=octant_values_frequency[4+4]
     data.at[index,'Probability_Octant_plus_4']=round(octant_values_frequency[4+4]/N,3)
-    max_min_update(octant_values_frequency[4+4],4)
+    max_min_update(octant_values_frequency[4+4],4,N,data)
 
     #for id -4
     count_i=0
     data.at[index,'Octant_minus_4']=octant_values_frequency[-4+4]
     data.at[index,'Probability_Octant_minus_4']=round(octant_values_frequency[-4+4]/N,3)
-    max_min_update(octant_values_frequency[-4+4],-4)
+    max_min_update(octant_values_frequency[-4+4],-4,N,data)
     
     #total octant
     data.at[index,'Total_Octant_sample']=N
 
-def Acceleration_U():
+def Acceleration_U(N,data):
     for i in range(N):
         if i==0:
             continue
         else:
             data.at[i,'accl_U']=(data.at[i,'U']-data.at[i-1,'U'])/data.at[1,'Time']
-def Acceleration_V():
+def Acceleration_V(N,data):
     for i in range(N):
         if i==0:
             continue
         else:
             data.at[i,'accl_V']=data.at[i,'V']-data.at[i-1,'V']/data.at[1,'Time']
-def Acceleration_W():
+def Acceleration_W(N,data):
     for i in range(N):
         if i==0:
             continue
         else:
             data.at[i,'accl_W']=data.at[i,'W']-data.at[i-1,'W']/data.at[1,'Time']
-def update_acceleration():
-    Acceleration_U()
-    Acceleration_V()
-    Acceleration_W()
+def update_acceleration(N,data):
+    Acceleration_U(N,data)
+    Acceleration_V(N,data)
+    Acceleration_W(N,data)
 
-def find_std():
+def find_std(N,data):
     data['U_std']=data['V_std']=data['W_std']=0.0
     data.at[0,'U_std']=data['U'].std()
     data.at[0,'V_std']=data['V'].std()
     data.at[0,'W_std']=data['W'].std()   
-def find_mean():
+def find_mean(N,data):
     data['U_mean']=data['V_mean']=data['W_mean']=0.0
     data.at[0,'U_mean']=data['U'].mean()
     data.at[0,'V_mean']=data['V'].mean()
     data.at[0,'W_mean']=data['W'].mean()
 
 
-def replace_all_1(i):
+def replace_all_1(i,N,data):
     if i==0:
         return
     else:
         data.at[i,'U']=data.at[i-1,'U']
         data.at[i,'V']=data.at[i-1,'V']
         data.at[i,'W']=data.at[i-1,'W']
-def replace_U_1(i):
+def replace_U_1(i,N,data):
     if i==0:
         return
     else:
         data.at[i,'U']=data.at[i-1,'U']
-def replace_V_1(i):
+def replace_V_1(i,N,data):
     if i==0:
         return
     else:
         data.at[i,'V']=data.at[i-1,'V']
-def replace_W_1(i):
+def replace_W_1(i,N,data):
     if i==0:
         return
     else:
         data.at[i,'W']=data.at[i-1,'W']
 
 
-def replace_all_2(i):
+def replace_all_2(i,N,data):
     if i==0 or i==1:
         return
     else:
         data.at[i,'U']=2*data.at[i-1,'U']-data.at[i-2,'U']
         data.at[i,'V']=2*data.at[i-1,'V']-data.at[i-2,'V']
         data.at[i,'W']=2*data.at[i-1,'W']-data.at[i-2,'W']     
-def replace_U_2(i):
+def replace_U_2(i,N,data):
     if i==0 or i==1:
         return
     else:
         data.at[i,'U']=2*data.at[i-1,'U']-data.at[i-2,'U']
-def replace_V_2(i):
+def replace_V_2(i,N,data):
     if i==0 or i==1:
         return
     else:
         data.at[i,'V']=2*data.at[i-1,'V']-data.at[i-2,'V']
-def replace_W_2(i):
+def replace_W_2(i,N,data):
     if i==0 or i==1:
         return
     else:
         data.at[i,'W']=2*data.at[i-1,'W']-data.at[i-2,'W']
 
-def replace_all_3(i):
+def replace_all_3(i,N,data):
     if i==0:
         return
     data.at[i,'U']=data.at[0,'U_mean']
     data.at[i,'V']=data.at[0,'V_mean']
     data.at[i,'W']=data.at[0,'W_mean']
-def replace_U_3(i):
+def replace_U_3(i,N,data):
     if i==0:
         return
     data.at[i,'U']=data.at[0,'U_mean']
-def replace_V_3(i):
+def replace_V_3(i,N,data):
     if i==0:
         return
     data.at[i,'V']=data.at[0,'V_mean']
-def replace_W_3(i):
+def replace_W_3(i,N,data):
     if i==0:
         return
     data.at[i,'W']=data.at[0,'W_mean']
 
 
-def replace_all_4(i):
+def replace_all_4(i,N,data):
     if i<=12 or i>N-12:
         return
     else:
@@ -444,7 +425,7 @@ def replace_all_4(i):
         data.at[i,'U']=(data['U'].iloc[x1:y1].mean()+data['U'].iloc[x2:y2].mean())/2
         data.at[i,'V']=(data['V'].iloc[x1:y1].mean()+data['V'].iloc[x2:y2].mean())/2
         data.at[i,'W']=(data['W'].iloc[x1:y1].mean()+data['W'].iloc[x2:y2].mean())/2
-def replace_U_4(i):
+def replace_U_4(i,N,data):
     if i<12 or i>N-12:
         return
     else:
@@ -453,7 +434,7 @@ def replace_U_4(i):
         x2=i+1
         y2=i+13
         data.at[i,'U']=(data['U'].iloc[x1:y1].mean()+data['U'].iloc[x2:y2].mean())/2
-def replace_V_4(i):
+def replace_V_4(i,N,data):
     if i<12 or i>N-12:
         return
     else:
@@ -462,7 +443,7 @@ def replace_V_4(i):
         x2=i+1
         y2=i+13
         data.at[i,'V']=(data['V'].iloc[x1:y1].mean()+data['V'].iloc[x2:y2].mean())/2
-def replace_W_4(i):
+def replace_W_4(i,N,data):
     if i<12 or i>N-12:
         return
     else:
@@ -473,65 +454,65 @@ def replace_W_4(i):
         data.at[i,'W']=(data['W'].iloc[x1:y1].mean()+data['W'].iloc[x2:y2].mean())/2
 
 
-def replace_all_5(i):
+def replace_all_5(i,N,data):
     if i==0 or i==N-1:
         return
     else:
         data.at[i,'U']=(data.at[i-1,'U']+data.at[i+1,'U'])/2
         data.at[i,'V']=(data.at[i-1,'V']+data.at[i+1,'V'])/2
         data.at[i,'W']=(data.at[i-1,'W']+data.at[i+1,'W'])/2
-def replace_U_5(i):
+def replace_U_5(i,N,data):
     if i==0 or i==N-1:
         return
     else:
         data.at[i,'U']=(data.at[i-1,'U']+data.at[i+1,'U'])/2
-def replace_V_5(i):
+def replace_V_5(i,N,data):
     if i==0 or i==N-1:
         return
     else:
         data.at[i,'V']=(data.at[i-1,'V']+data.at[i+1,'V'])/2
-def replace_W_5(i):
+def replace_W_5(i,N,data):
     if i==0 or i==N-1:
         return
     else:
         data.at[i,'W']=(data.at[i-1,'W']+data.at[i+1,'W'])/2
 
 
-def replace_all(i,x):
-    if(x==1):replace_all_1(i)
-    if(x==2):replace_all_2(i)
-    if(x==3):replace_all_3(i)
-    if(x==4):replace_all_4(i)
-    if(x==5):replace_all_5(i)
+def replace_all(i,x,N,data):
+    if(x==1):replace_all_1(i,N,data)
+    if(x==2):replace_all_2(i,N,data)
+    if(x==3):replace_all_3(i,N,data)
+    if(x==4):replace_all_4(i,N,data)
+    if(x==5):replace_all_5(i,N,data)
 
-def replace_U(i,x):
-    if(x==1):replace_U_1(i)
-    if(x==2):replace_U_2(i)
-    if(x==3):replace_U_3(i)
-    if(x==4):replace_U_4(i)
-    if(x==5):replace_U_5(i)
+def replace_U(i,x,N,data):
+    if(x==1):replace_U_1(i,N,data)
+    if(x==2):replace_U_2(i,N,data)
+    if(x==3):replace_U_3(i,N,data)
+    if(x==4):replace_U_4(i,N,data)
+    if(x==5):replace_U_5(i,N,data)
 
-def replace_V(i,x):
-    if(x==1):replace_V_1(i)
-    if(x==2):replace_V_2(i)
-    if(x==3):replace_V_3(i)
-    if(x==4):replace_V_4(i)
-    if(x==5):replace_V_5(i)
+def replace_V(i,x,N,data):
+    if(x==1):replace_V_1(i,N,data)
+    if(x==2):replace_V_2(i,N,data)
+    if(x==3):replace_V_3(i,N,data)
+    if(x==4):replace_V_4(i,N,data)
+    if(x==5):replace_V_5(i,N,data)
         
-def replace_W(i,x):
-    if(x==1):replace_W_1(i)
-    if(x==2):replace_W_2(i)
-    if(x==3):replace_W_3(i)
-    if(x==4):replace_W_4(i)
-    if(x==5):replace_W_5(i)
+def replace_W(i,x,N,data):
+    if(x==1):replace_W_1(i,N,data)
+    if(x==2):replace_W_2(i,N,data)
+    if(x==3):replace_W_3(i,N,data)
+    if(x==4):replace_W_4(i,N,data)
+    if(x==5):replace_W_5(i,N,data)
 
-def acceleration_all_at_a_time_negative(x):
+def acceleration_all_at_a_time_negative(x,N,data):
     found_peak=1
     max_iteration=12
     while found_peak and max_iteration>0:
-        update_acceleration()
-        find_std()
-        find_mean()
+        update_acceleration(N,data)
+        find_std(N,data)
+        find_mean(N,data)
         max_iteration-=1
         found_peak=0
         for i in range(N):
@@ -539,15 +520,15 @@ def acceleration_all_at_a_time_negative(x):
                 continue
             if (data.at[i,'accl_U']<-1*Lambda*g and data.at[i,'U']<-1*data.at[0,'U_std']*k) or(data.at[i,'accl_V']<-1*Lambda*g and data.at[i,'V']<-1*data.at[0,'V_std']*k) or (data.at[i,'accl_W']<-1*Lambda*g and data.at[i,'W']<-1*data.at[0,'W_std']*k):
                 found_peak=1
-                replace_all(i,x)
+                replace_all(i,x,N,data)
 
 def acceleration_one_at_a_time_negative(x):
     found_peak=1
     max_iteration=12
     while found_peak and max_iteration>0:
-        update_acceleration()
-        find_std()
-        find_mean()
+        update_acceleration(N,data)
+        find_std(N,data)
+        find_mean(N,data)
         max_iteration-=1
         found_peak=0
         for i in range(N):
@@ -563,13 +544,13 @@ def acceleration_one_at_a_time_negative(x):
                 found_peak=1
                 replace_W(i,x) 
 
-def acceleration_all_at_a_time_positive(x):
+def acceleration_all_at_a_time_positive(x,N,data):
     found_peak=1
     max_iteration=12
     while found_peak and max_iteration>0:
-        update_acceleration()
-        find_std()
-        find_mean()
+        update_acceleration(N,data)
+        find_std(N,data)
+        find_mean(N,data)
         max_iteration-=1
         found_peak=0
         for i in range(N):
@@ -577,15 +558,15 @@ def acceleration_all_at_a_time_positive(x):
                 continue
             if (data.at[i,'accl_U']>1*Lambda*g and data.at[i,'U']>1*data.at[0,'U_std']*k) or(data.at[i,'accl_V']>1*Lambda*g and data.at[i,'V']>1*data.at[0,'V_std']*k) or (data.at[i,'accl_W']>1*Lambda*g and data.at[i,'W']>1*data.at[0,'W_std']*k):
                 found_peak=1
-                replace_all(i,x) 
+                replace_all(i,x,N,data) 
         
-def acceleration_one_at_a_time_positive(x):
+def acceleration_one_at_a_time_positive(x,N,data):
     found_peak=1
     max_iteration=12
     while found_peak and max_iteration>0:
-        update_acceleration()
-        find_std()
-        find_mean()
+        update_acceleration(N,data)
+        find_std(N,data)
+        find_mean(N,data)
         max_iteration-=1
         found_peak=0
         for i in range(N):
@@ -601,61 +582,61 @@ def acceleration_one_at_a_time_positive(x):
                 found_peak=1
                 replace_W(i,x)
 
-def update_acceleration_one_at_time(x):
-    acceleration_one_at_a_time_negative(x)
-    acceleration_one_at_a_time_positive(x)
+def update_acceleration_one_at_time(x,N,data):
+    acceleration_one_at_a_time_negative(x,N,data)
+    acceleration_one_at_a_time_positive(x,N,data)
     
-def update_acceleration_all_at_time(x):
-    acceleration_all_at_a_time_negative(x)
-    acceleration_all_at_a_time_positive(x)
+def update_acceleration_all_at_time(x,N,data):
+    acceleration_all_at_a_time_negative(x,N,data)
+    acceleration_all_at_a_time_positive(x,N,data)
 
-def Corr_All(x,corr):
+def Corr_All(x,corr,N,data):
     for i in range(N):
         if i==0:
             continue
         if int(data.at[i,'Corr_U'])<int(corr) or int(data.at[i,'Corr_V'])<int(corr) or int(data.at[i,'Corr_W'])<int(corr):
-            replace_all(i,x)
+            replace_all(i,x,N,data)
 
-def Corr_One(x,corr):
+def Corr_One(x,corr,N,data):
     for i in range(N):
         if i==0:
             continue
         if int(data.at[i,'Corr_U'])<int(corr):
-            replace_U(i,x)
+            replace_U(i,x,N,data)
         if int(data.at[i,'Corr_V'])<int(corr):
-            replace_V(i,x)
+            replace_V(i,x,N,data)
         if int(data.at[i,'Corr_W'])<int(corr):
-            replace_W(i,x)
+            replace_W(i,x,N,data)
 
-def SNR_All(x,SNR):
+def SNR_All(x,SNR,N,data):
     for i in range(N):
         if i==0:
             continue
         if int(data.at[i,'SNR_U'])<int(SNR) or int(data.at[i,'SNR_V'])<int(SNR) or int(data.at[i,'SNR_W'])<int(SNR):
-            replace_all(i,x)
+            replace_all(i,x,N,data)
 
-def SNR_One(x,SNR):
+def SNR_One(x,SNR,N,data):
     for i in range(N):
         if i==0:
             continue
         if int(data.at[i,'SNR_U'])<int(SNR):
-            replace_U(i,x)
+            replace_U(i,x,N,data)
         if int(data.at[i,'SNR_V'])<int(SNR):
-            replace_V(i,x)
+            replace_V(i,x,N,data)
         if int(data.at[i,'SNR_W'])<int(SNR):
-            replace_W(i,x)
+            replace_W(i,x,N,data)
             
 
 
-def store():
+def store(name,N,data):
     with open(r"Results_v2.csv",mode='a') as file_:
         file_.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(name,data.at[0,'U_mean'],data.at[0,'V_mean'],data.at[0,'W_mean'],data.at[0,'Var_u\''],data.at[0,'Var_v\''],data.at[0,'Var_w\''],data.at[0,'std_u\''],data.at[0,'std_v\''],data.at[0,'std_w\''],data.at[0,'Skewness_u\''],data.at[0,'Skewness_v\''],data.at[0,'Skewness_w\''],data.at[0,'Kurtosis_u\''],data.at[0,'Kurtosis_v\''],data.at[0,'Kurtosis_w\''],data.at[0,'Reynolds_stress_u\'v\''],data.at[0,'Reynolds_stress_u\'w\''],data.at[0,'Reynolds_stress_v\'w\''],data.at[0,'anisotropy'],data.at[0,'M30'],data.at[0,'M03'],data.at[0,'M12'],data.at[0,'M21'],data.at[0,'fku_2d'],data.at[0,'Fku_2d'],data.at[0,'fkw_2d'],data.at[0,'Fkw_2d'],data.at[index,'fku_3d'],data.at[index,'Fku_3d'],data.at[index,'fkw_3d'],data.at[index,'Fkw_3d'],data.at[index,'TKE_3D'],data.at[0,'Q1_K_Value'],data.at[0,'Q2_K_Value'],data.at[0,'Q3_K_Value'],data.at[0,'Q4_K_Value'],0,0,data.at[0,'Octant_plus_1'],data.at[0,'Octant_minus_1'],data.at[0,'Octant_plus_2'],data.at[0,'Octant_minus_2'],data.at[0,'Octant_plus_3'],data.at[0,'Octant_minus_3'],data.at[0,'Octant_plus_4'],data.at[0,'Octant_minus_4'],data.at[0,'Total_Octant_sample'],data.at[0,'Probability_Octant_plus_1'],data.at[0,'Probability_Octant_minus_1'],data.at[0,'Probability_Octant_plus_2'],data.at[0,'Probability_Octant_minus_2'],data.at[0,'Probability_Octant_plus_3'],data.at[0,'Probability_Octant_minus_3'],data.at[0,'Probability_Octant_plus_4'],data.at[0,'Probability_Octant_minus_4'],data.at[0,'Min_Octant_Count'],data.at[0,'Min_Octant_Count_id'],data.at[0,'Max_Octant_Count'],data.at[0,'Max_Octant_Count_id'],"\n"))
 
-def allfunction():
-    useful_values()
-    fk()
-    Q_K_Value()
-    octant()
+def allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity):
+    useful_values(N,data)
+    fk(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+    Q_K_Value(N,data)
+    octant(N,data)
 
 
 
@@ -668,272 +649,348 @@ def add_front_name(name,x):
     
     print(name)
     return name
-print("-"*25)
-print('1. C','2. S','3. A','4. C & S','5. C & A','6. S & A','7. C & S & A','8. all combine',sep='\n')
-tch = int(input('Chose Filtering Method From Above:'))
-if tch == 1:
-    corr = int(input('Enter thresold value C:'))
-elif tch == 2:
-    SNR = int(input('Enter thresold value S:'))
-elif tch == 3:
-    Lambda = float(input('Enter Lambda value for A:'))
-    k = float(input('Enter k value for A:'))
-    print(Lambda,k)
-elif tch == 4:
-    corr = int(input('Enter thresold value C:'))
-    SNR = int(input('Enter thresold value S:'))
-elif tch == 5:
-    corr = int(input('Enter thresold value C:'))
-    Lambda = float(input('Enter Lambda value for A:'))
-    k = float(input('Enter k value for A:'))
-elif tch == 6:
-    SNR = int(input('Enter thresold value S:'))
-    Lambda = float(input('Enter Lambda value for A:'))
-    k = float(input('Enter k value for A:'))
-elif tch == 7 or tch==8:
-    corr = int(input('Enter thresold value C:'))
-    SNR = int(input('Enter thresold value S:'))
-    Lambda = float(input('Enter Lambda value for A:'))
-    k = float(input('Enter k value for A:'))
-else:
-    print('Please enter correct choice...')
-print("*"*25)
 
 
-print('1. previous point','2. 2*last-2nd_last','3. overall_mean',
-      '4. 12_point_strategy','5. mean of previous 2 point',
-      '6. all seqential','7. all parallel',sep='\n')
-sch = int(input('Chose Replacement Method From Above:')) 
-if sch> 7:
-    print('Please enter correct choice...')
-else:
+
+
+def main(pp_tch, pp_corr, pp_SNR, pp_Lamda, pp_k, pp_sch,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity):
+    start_time = datetime.now() 
+    print(start_time.strftime("%c"))
+
     fileList = open('input_file_list.txt', 'r')
     files = fileList.readlines()
     for file in files:
-        input_filename=file.strip()[:-3]+'csv'
-        try:
-            input_data = pd.read_csv(input_filename)
-        except:
-            print(input_filename)
-            continue
-        N=input_data['U'].count()
+        input_filename = file.strip()
         
-        if tch==1 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_All(i,corr)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-                
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_One(i,corr)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-    
-        if tch==2 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                SNR_All(i,SNR)
-                allfunction()
-                name = f"{input_filename}_filtered_by_SNR{SNR}_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)    
-                name = add_front_name(name,i)
-                store()
-            
-                data =input_data
-                find_mean()
-                find_std()
-                SNR_One(i,SNR)
-                allfunction()
-                name = f"{input_filename}_filtered_by_SNR{SNR}_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-    
-        if tch==3 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_acceleration_1.5_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
+        base = (Path(input_filename).stem.strip())
+        output_csv = base+".csv"
         
-                data =input_data
-                find_mean()
-                find_std()
-                update_acceleration_one_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_acceleration_1.5_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-    
-        if tch==4 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_All(i,corr)
-                SNR_All(i,SNR)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
+        header_list = ['Time','SL' ,'counter' ,'U','V','W','W1','AMP-U' ,'AMP-V' ,'AMP-W' ,'AMP-W1' ,'SNR_U','SNR_V','SNR_W','SNR-W1' ,'Corr_U','Corr_V','Corr_W','Corr-W1']
+        dataframe = pd.read_csv(input_filename,delimiter=" +")
+        dataframe.to_csv(output_csv, encoding='utf-8', header=header_list, index=False)
+
+    # index=0
+    # corr= 70
+    # SNR= 15 
+    # Lambda=1.5
+    # k=1.5
+    # g=9.81
+    # N=input_data['U'].count()
+
+
+    with open(r"Results_v2.csv",mode='a') as file_:
+        file_.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(start_time.strftime("%c"),"average_velocity_U","average_velocity_V","average_velocity_W","U_variance_Prime","V_variance_Prime","W_variance_Prime","U_stdev_Prime","V_stdev_Prime","W_stdev_Prime","Skewness_U_Prime","Skewness_V_Prime","Skewness_W_Prime","Kurtosis_U_Prime","Kurtosis_V_Prime","Kurtosis_W_Prime","Reynolds_stress_u\'v\'","Reynolds_stress_u\'w\'","Reynolds_stress_v\'w\'","Anisotropy","M30","M03","M12","M21","fku_2d","Fku_2d","fkw_2d","Fkw_2d","fku_3d","Fku_3d","fkw_3d","Fkw_3d","TKE_3d","Q1_K_Value","Q2_K_Value","Q3_K_Value","Q4_K_Value","e","ED","Octant_plus_1","Octant_minus_1","Octant_plus_2","Octant_minus_2","Octant_plus_3","Octant_minus_3","Octant_plus_4","Octant_minus_4","Total_Octant_sample","Probability_Octant_plus_1","Probability_Octant_minus_1","Probability_Octant_plus_2","Probability_Octant_minus_2","Probability_Octant_plus_3","Probability_Octant_minus_3","Probability_Octant_plus_4","Probability_Octant_minus_4","Min_Octant_Count","Min_Octant_Count_id","Max_Octant_Count","Max_Octant_Count_id","\n"))
+
+    print("-"*25)
+    print('1. C','2. S','3. A','4. C & S','5. C & A','6. S & A','7. C & S & A','8. all combine',sep='\n')
+    # tch = int(input('Chose Filtering Method From Above:'))
+    tch=pp_tch[0]
+    tch=int(tch)
+    # print("tch=")
+    # print(tch)
+    corr=SNR=Lambda=k=0
+    if tch == 1:
+        # corr = int(input('Enter thresold value C:'))
+        corr=pp_corr
+    elif tch == 2:
+        # SNR = int(input('Enter thresold value S:'))
+        SNR=pp_SNR
+    elif tch == 3:
+        # Lambda = float(input('Enter Lambda value for A:'))
+        # k = float(input('Enter k value for A:'))
+        # print(Lambda,k)
+        Lamda=pp_Lamda
+        k=pp_k
+    elif tch == 4:
+        # corr = int(input('Enter thresold value C:'))
+        # SNR = int(input('Enter thresold value S:'))
+        corr=pp_corr
+        SNR=pp_SNR
+    elif tch == 5:
+        # corr = int(input('Enter thresold value C:'))
+        # Lambda = float(input('Enter Lambda value for A:'))
+        # k = float(input('Enter k value for A:'))
+        corr=pp_corr
+        Lamda=pp_Lamda
+        k=pp_k
+    elif tch == 6:
+        # SNR = int(input('Enter thresold value S:'))
+        # Lambda = float(input('Enter Lambda value for A:'))
+        # k = float(input('Enter k value for A:'))
+        SNR=pp_SNR
+        Lamda=pp_Lamda
+        k=pp_k
+    elif tch == 7 or tch==8:
+        corr=pp_corr
+        SNR=pp_SNR
+        Lamda=pp_Lamda
+        # print(Lambda, pp_Lamda)
+        k=pp_k
+    else:
+        print('Please enter correct choice...')
+        pass
+    print("*"*25)
+
+
+    # print('1. previous point','2. 2*last-2nd_last','3. overall_mean',
+    #       '4. 12_point_strategy','5. mean of previous 2 point',
+    #       '6. all seqential','7. all parallel',sep='\n')
+    # sch = int(input('Chose Replacement Method From Above:')) 
+    sch=pp_sch[0]
+    sch=int(sch)
+    # print(tch)
+    # print(sch)
+    # print(corr)
+    # print(SNR)
+    # print(Lambda)
+    # print(k)
+    # print('hello\n\n\n')
+    if sch> 7:
+        # print('Please enter correct choice...')
+        pass
+    else:
+        fileList = open('input_file_list.txt', 'r')
+        files = fileList.readlines()
+        for file in files:
+            input_filename=file.strip()[:-3]+'csv'
+            try:
+                input_data = pd.read_csv(input_filename)
+            except:
+                print(input_filename)
+                print('except')
+                continue
+            N=input_data['U'].count()
+            
+            if tch==1 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_All(i,corr,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+                    
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_One(i,corr,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+        
+            if tch==2 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    SNR_All(i,SNR,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_SNR{SNR}_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)    
+                    name = add_front_name(name,i)
+                    store(name,N,data)
                 
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_One(i,corr)
-                SNR_One(i,SNR)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-    
-        if tch==5 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                SNR_All(i,SNR)
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_SNR{SNR}_Acceleration_1.5_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    SNR_One(i,SNR,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_SNR{SNR}_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+        
+            if tch==3 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_acceleration_1.5_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
             
-                data =input_data
-                find_mean()
-                find_std()
-                SNR_One(i,SNR)
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_SNR{SNR}_acceleration_1.5_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-    
-        if tch==6 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_All(i,corr)
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_Acceleration_1.5_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-            
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_One(i,corr)
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_acceleration_1.5_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
-                name = add_front_name(name,i)
-                store()
-    
-        if tch==7 or tch==8:
-            if sch>5:
-                iList = [1,2,3,4,5]
-            else:
-                iList = [sch]
-            for i in iList:
-                if sch==7:
-                    input_data = pd.read_csv(input_filename)
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_All(i,corr)
-                SNR_All(i,SNR)
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_Acceleration_1.5_all_replacement_strategy_{i}"
-                write_timestamp_to_file(name)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    update_acceleration_one_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_acceleration_1.5_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+        
+            if tch==4 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_All(i,corr,N,data)
+                    SNR_All(i,SNR,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+                    
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_One(i,corr,N,data)
+                    SNR_One(i,SNR,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+        
+            if tch==5 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    SNR_All(i,SNR,N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_SNR{SNR}_Acceleration_1.5_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
                 
-                name = add_front_name(name,i)
-                store()
-            
-                data =input_data
-                find_mean()
-                find_std()
-                Corr_One(i,corr)
-                SNR_One(i,SNR)
-                update_acceleration_all_at_time(i)
-                allfunction()
-                name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_acceleration_1.5_individual_replacement_strategy_{i}"
-                write_timestamp_to_file(name)    
-                name = add_front_name(name,i)
-                store()
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    SNR_One(i,SNR,N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_SNR{SNR}_acceleration_1.5_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+        
+            if tch==6 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_All(i,corr,N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_Acceleration_1.5_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+                
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_One(i,corr,N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_acceleration_1.5_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+        
+            if tch==7 or tch==8:
+                if sch>5:
+                    iList = [1,2,3,4,5]
+                else:
+                    iList = [sch]
+                for i in iList:
+                    if sch==7:
+                        input_data = pd.read_csv(input_filename)
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_All(i,corr,N,data)
+                    SNR_All(i,SNR,N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_Acceleration_1.5_all_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)
+                    
+                    name = add_front_name(name,i)
+                    store(name,N,data)
+                
+                    data =input_data
+                    find_mean(N,data)
+                    find_std(N,data)
+                    Corr_One(i,corr,N,data)
+                    SNR_One(i,SNR,N,data)
+                    update_acceleration_all_at_time(i,N,data)
+                    allfunction(N,data,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
+                    name = f"{input_filename}_filtered_by_correlation{corr}_SNR{SNR}_acceleration_1.5_individual_replacement_strategy_{i}"
+                    write_timestamp_to_file(name)    
+                    name = add_front_name(name,i)
+                    store(name,N,data)
 
 
-end_time = datetime.now()
+    end_time = datetime.now()
 
-print("-------------------------------------------------------------------")
-print("\nStart Time :", start_time.strftime("%c"))
-print("\nEnd Time :", end_time.strftime("%c")) 
-print('\nDuration: {}'.format(end_time - start_time))
-duration=end_time - start_time
-name="Complete Duration"
-duration_timestamp_to_file(name, duration)
+    print("-------------------------------------------------------------------")
+    print("\nStart Time :", start_time.strftime("%c"))
+    print("\nEnd Time :", end_time.strftime("%c")) 
+    print('\nDuration: {}'.format(end_time - start_time))
+    duration=end_time - start_time
+    name="Complete Duration"
+    duration_timestamp_to_file(name, duration)
 
-print("-------------------------------------------------------------------")
+    print("-------------------------------------------------------------------")
+
+if __name__ == "__main__":
+    #pp_tch, pp_corr, pp_SNR, pp_Lamda, pp_k, pp_sch
+    # print(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9])
+    pp_tch=sys.argv[1]
+    pp_corr=int(sys.argv[2])
+    pp_SNR=int(sys.argv[3])
+    pp_Lamda=float(sys.argv[4])
+    pp_k=float(sys.argv[5])
+    pp_sch=sys.argv[6]
+    pp_constant_fk2d=float(sys.argv[7])
+    pp_multiplying_factor_3d=float(sys.argv[8])
+    pp_Shear_velocity=float(sys.argv[9])
+    main(pp_tch, pp_corr, pp_SNR, pp_Lamda, pp_k, pp_sch,pp_constant_fk2d,pp_multiplying_factor_3d,pp_Shear_velocity)
