@@ -1,7 +1,7 @@
-7.2_raw.csv_filtered_by_correlation0_Acceleration_1.5_all_replacement_strategy_3,2022-11-30 03:09:38.837192
-7.2_raw.csv_filtered_by_correlation0_acceleration_1.5_individual_replacement_strategy_3,2022-11-30 03:09:38.908753
-7.6_raw.csv_filtered_by_correlation0_Acceleration_1.5_all_replacement_strategy_3,2022-11-30 03:09:39.043092
-7.6_raw.csv_filtered_by_correlation0_acceleration_1.5_individual_replacement_strategy_3,2022-11-30 03:09:39.108936
-7.9_raw.csv_filtered_by_correlation0_Acceleration_1.5_all_replacement_strategy_3,2022-11-30 03:09:39.241588
-7.9_raw.csv_filtered_by_correlation0_acceleration_1.5_individual_replacement_strategy_3,2022-11-30 03:09:39.321610
-Complete Duration,0:00:00.666513
+7.2_raw.csv_filtered_by_correlation70_SNR15_Acceleration_1.5_all_replacement_strategy_1,2022-12-01 13:27:09.467202
+7.2_raw.csv_filtered_by_correlation70_SNR15_acceleration_1.5_individual_replacement_strategy_1,2022-12-01 13:27:09.608195
+7.6_raw.csv_filtered_by_correlation70_SNR15_Acceleration_1.5_all_replacement_strategy_1,2022-12-01 13:27:09.826775
+7.6_raw.csv_filtered_by_correlation70_SNR15_acceleration_1.5_individual_replacement_strategy_1,2022-12-01 13:27:09.975994
+7.9_raw.csv_filtered_by_correlation70_SNR15_Acceleration_1.5_all_replacement_strategy_1,2022-12-01 13:27:10.076205
+7.9_raw.csv_filtered_by_correlation70_SNR15_acceleration_1.5_individual_replacement_strategy_1,2022-12-01 13:27:10.137360
+Complete Duration,0:00:00.957171
